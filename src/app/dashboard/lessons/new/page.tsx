@@ -1,0 +1,124 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { LEVELS } from "@/lib/types";
+import { createLesson } from "../actions";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
+export default function NewLessonPage() {
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const formData = new FormData(e.currentTarget);
+    const result = await createLesson(formData);
+
+    if (!result.success) {
+      setError(result.error || "Erreur inconnue");
+      setLoading(false);
+      return;
+    }
+
+    router.push("/dashboard/lessons");
+  }
+
+  return (
+    <div>
+      <Link
+        href="/dashboard/lessons"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Retour aux leçons
+      </Link>
+
+      <h1 className="text-2xl font-bold mb-6">Nouvelle leçon</h1>
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-2xl border border-gray-100 p-6 max-w-2xl space-y-4 shadow-sm shadow-gray-200/50"
+      >
+        {error && (
+          <div className="bg-red-50 text-red-600 text-sm rounded-lg p-3">
+            {error}
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Titre *
+          </label>
+          <input
+            name="title"
+            required
+            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Niveau cible
+          </label>
+          <select
+            name="target_level"
+            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          >
+            <option value="all">Tous niveaux</option>
+            {LEVELS.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Contenu (Markdown)
+          </label>
+          <textarea
+            name="content"
+            rows={12}
+            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-mono text-sm"
+            placeholder="# Titre de la leçon&#10;&#10;Écrivez le contenu en Markdown..."
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="published"
+            id="published"
+            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label htmlFor="published" className="text-sm text-gray-700">
+            Publier immédiatement
+          </label>
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition disabled:opacity-50 font-medium shadow-sm"
+          >
+            {loading ? "Création..." : "Créer la leçon"}
+          </button>
+          <Link
+            href="/dashboard/lessons"
+            className="px-6 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 transition font-medium"
+          >
+            Annuler
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}
