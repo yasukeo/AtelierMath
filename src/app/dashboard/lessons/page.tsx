@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Plus, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { LessonRow } from "./lesson-row";
+import { LessonList } from "./lesson-list";
 
 export default async function LessonsPage() {
   const supabase = await createClient();
@@ -11,12 +11,16 @@ export default async function LessonsPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
+  const publishedCount = (lessons || []).filter((l) => l.published).length;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold">Leçons</h1>
-          <p className="text-gray-500 text-sm mt-1">Créez et gérez vos leçons.</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {(lessons || []).length} leçon{(lessons || []).length !== 1 ? "s" : ""} dont {publishedCount} publiée{publishedCount !== 1 ? "s" : ""}.
+          </p>
         </div>
         <Link
           href="/dashboard/lessons/new"
@@ -33,11 +37,7 @@ export default async function LessonsPage() {
           Aucune leçon publiée. Commencez par en créer une !
         </div>
       ) : (
-        <div className="space-y-3">
-          {lessons.map((lesson) => (
-            <LessonRow key={lesson.id} lesson={lesson} />
-          ))}
-        </div>
+        <LessonList lessons={lessons} />
       )}
     </div>
   );

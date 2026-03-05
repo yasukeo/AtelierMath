@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 import { Plus, Users } from "lucide-react";
 import Link from "next/link";
-import { StudentRow } from "./student-row";
+import { StudentList } from "./student-list";
 
 export default async function StudentsPage() {
   const supabase = await createClient();
@@ -18,7 +18,9 @@ export default async function StudentsPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold">Élèves</h1>
-          <p className="text-gray-500 text-sm mt-1">Gérez vos élèves et leurs profils.</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {(students || []).length} élève{(students || []).length !== 1 ? "s" : ""} inscrit{(students || []).length !== 1 ? "s" : ""}.
+          </p>
         </div>
         <Link
           href="/dashboard/students/new"
@@ -35,34 +37,7 @@ export default async function StudentsPage() {
           Aucun élève pour le moment. Commencez par en ajouter un !
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm shadow-gray-200/50">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Nom
-                </th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Niveau
-                </th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Notes
-                </th>
-                <th className="text-right px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {(students as Profile[]).map((student) => (
-                <StudentRow key={student.id} student={student} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <StudentList students={students as Profile[]} />
       )}
     </div>
   );

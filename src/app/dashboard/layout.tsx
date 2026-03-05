@@ -3,28 +3,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   GraduationCap,
-  Users,
-  BookOpen,
-  ClipboardList,
-  Calendar,
-  CalendarCheck,
   LogOut,
   Home,
-  ChevronRight,
 } from "lucide-react";
-
-const navItems = [
-  { href: "/dashboard", label: "Tableau de bord", icon: Home },
-  { href: "/dashboard/students", label: "Élèves", icon: Users },
-  { href: "/dashboard/lessons", label: "Leçons", icon: BookOpen },
-  { href: "/dashboard/homework", label: "Devoirs", icon: ClipboardList },
-  { href: "/dashboard/availability", label: "Disponibilités", icon: Calendar },
-  {
-    href: "/dashboard/bookings",
-    label: "Réservations",
-    icon: CalendarCheck,
-  },
-];
+import { SidebarNav } from "./sidebar-nav";
 
 export default async function DashboardLayout({
   children,
@@ -38,11 +20,17 @@ export default async function DashboardLayout({
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, full_name")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { count: pendingBookings }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role, full_name")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("bookings")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending"),
+  ]);
 
   if (profile?.role !== "teacher") redirect("/student");
 
@@ -56,7 +44,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Sidebar — dark theme */}
-      <aside className="w-64 bg-sidebar flex flex-col shrink-0">
+      <aside className="w-64 bg-sidebar flex flex-col shrink-0 sticky top-0 h-screen">
         {/* Brand */}
         <div className="px-5 py-5 flex items-center gap-2.5">
           <div className="bg-blue-500 rounded-lg p-1.5">
@@ -67,20 +55,8 @@ export default async function DashboardLayout({
           </span>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 mt-2 space-y-0.5">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-sidebar-hover hover:text-white text-sm font-medium"
-            >
-              <item.icon className="h-[18px] w-[18px] text-gray-500 group-hover:text-blue-400" />
-              <span className="flex-1">{item.label}</span>
-              <ChevronRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 text-gray-600" />
-            </Link>
-          ))}
-        </nav>
+        {/* Nav — client component with active states */}
+        <SidebarNav pendingBookings={pendingBookings ?? 0} />
 
         {/* Back to site link */}
         <div className="px-3 pb-2">

@@ -57,7 +57,7 @@ export function HomeworkEditForm({ homework }: { homework: Homework }) {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl border p-6 max-w-2xl space-y-4"
+        className="bg-white rounded-2xl border border-gray-100 p-6 max-w-2xl space-y-4 shadow-sm shadow-gray-200/50"
       >
         {error && (
           <div className="bg-red-50 text-red-600 text-sm rounded-lg p-3">
@@ -123,13 +123,13 @@ export function HomeworkEditForm({ homework }: { homework: Homework }) {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 font-medium"
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition disabled:opacity-50 font-medium shadow-sm"
           >
             {loading ? "Enregistrement..." : "Enregistrer"}
           </button>
           <Link
             href="/dashboard/homework"
-            className="px-6 py-2.5 rounded-lg border hover:bg-gray-50 transition"
+            className="px-6 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 transition font-medium"
           >
             Annuler
           </Link>

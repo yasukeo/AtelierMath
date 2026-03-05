@@ -13,12 +13,22 @@ export default async function HomeworkPage() {
     )
     .order("created_at", { ascending: false });
 
+  const totalHw = (homeworks || []).length;
+  const pendingReview = (homeworks || []).filter((h) => h.status === "submitted").length;
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Devoirs</h1>
-          <p className="text-gray-500 text-sm mt-1">Assignez et corrigez les devoirs.</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {totalHw} devoir{totalHw !== 1 ? "s" : ""}
+            {pendingReview > 0 && (
+              <span className="text-amber-600 font-medium">
+                {" "}· {pendingReview} en attente de correction
+              </span>
+            )}
+          </p>
         </div>
         <Link
           href="/dashboard/homework/new"
@@ -28,6 +38,28 @@ export default async function HomeworkPage() {
           Nouveau devoir
         </Link>
       </div>
+
+      {/* Status summary */}
+      {totalHw > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
+            <p className="text-lg font-bold text-blue-700">
+              {(homeworks || []).filter((h) => h.status === "assigned").length}
+            </p>
+            <p className="text-xs text-blue-600">Assignés</p>
+          </div>
+          <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-center">
+            <p className="text-lg font-bold text-amber-700">{pendingReview}</p>
+            <p className="text-xs text-amber-600">Rendus</p>
+          </div>
+          <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-center">
+            <p className="text-lg font-bold text-green-700">
+              {(homeworks || []).filter((h) => h.status === "reviewed").length}
+            </p>
+            <p className="text-xs text-green-600">Corrigés</p>
+          </div>
+        </div>
+      )}
 
       {!homeworks || homeworks.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center text-gray-500 shadow-sm shadow-gray-200/50">
